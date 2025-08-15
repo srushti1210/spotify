@@ -1,4 +1,4 @@
-# Spotify Advanced SQL Project and Query Optimization P-6
+# Spotify Advanced SQL Project 
 Project Category: Advanced
 [Click Here to get Dataset](https://www.kaggle.com/datasets/sanjanchaudhari/spotify-dataset)
 
@@ -73,17 +73,61 @@ In advanced stages, the focus shifts to improving query performance. Some optimi
    ```sql
    SELECT track FROM spotify WHERE stream> 1000000000;
     ```
-3. List all albums along with their respective artists.
-4. Get the total number of comments for tracks where `licensed = TRUE`.
-5. Find all tracks that belong to the album type `single`.
-6. Count the total number of tracks by each artist.
-
+2. List all albums along with their respective artists.
+  ```sql
+SELECT DISTINCT album, artist FROM spotify ;
+  ```
+3. Get the total number of comments for tracks where `licensed = TRUE`.
+  ```sql
+SELECT SUM(comments) as total_comments FROM spotify WHERE licensed=TRUE;
+  ```
+4. Find all tracks that belong to the album type `single`.
+ ```sql
+SELECT * FROM spotify WHERE album_type like 'single';
+  ```
+5. Count the total number of tracks by each artist.
+ ```sql
+SELECT artist, COUNT(track) as count_of_tracks FROM spotify GROUP BY artist;
+  ```
 ### Medium Level
 1. Calculate the average danceability of tracks in each album.
+ ```sql
+SELECT album, AVG(danceability) as avg_danceability FROM spotify 
+GROUP BY 1;
+```
 2. Find the top 5 tracks with the highest energy values.
+  ```sql
+    SELECT track,MAX(eneargy) FROM spotify
+GROUP BY 1
+ORDER BY 2 DESC LIMIT 5; 
+```
 3. List all tracks along with their views and likes where `official_video = TRUE`.
+ ```sql
+SELECT track,
+SUM(views) as total_views,
+SUM(likes) as total_likes
+FROM spotify
+WHERE official_video =  TRUE 
+GROUP BY 1
+ORDER BY 2 DESC;
+```
 4. For each album, calculate the total views of all associated tracks.
+ ```sql
+SELECT album, track, SUM(views) FROM spotify
+GROUP BY album,track
+ORDER BY 3 DESC;
+```
 5. Retrieve the track names that have been streamed on Spotify more than YouTube.
+ ```sql
+SELECT * FROM 
+(SELECT track, 
+COALESCE(SUM(CASE WHEN most_played_on='Youtube' THEN stream END),0) as streamed_on_youtube,
+COALESCE(SUM(CASE WHEN most_played_on='Spotify' THEN stream END),0) as streamed_on_spotify
+FROM spotify
+GROUP BY 1) as t1
+WHERE streamed_on_spotify > streamed_on_youtube
+AND streamed_on_youtube <> 0 ;
+```
 
 ### Advanced Level
 1. Find the top 3 most-viewed tracks for each artist using window functions.
