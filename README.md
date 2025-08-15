@@ -131,8 +131,27 @@ AND streamed_on_youtube <> 0 ;
 
 ### Advanced Level
 1. Find the top 3 most-viewed tracks for each artist using window functions.
+ ```sql
+WITH ranking_artist
+as
+(SELECT  artist,
+track,
+SUM(views) as total_views,
+DENSE_RANK() OVER(PARTITION BY artist ORDER BY SUM(views) DESC) as rank
+FROM spotify
+GROUP BY 1,2
+ORDER BY 1,3 DESC)
+SELECT * FROM ranking_artist
+WHERE rank <=3 ;
+ ```
 2. Write a query to find tracks where the liveness score is above the average.
-3. **Use a `WITH` clause to calculate the difference between the highest and lowest energy values for tracks in each album.**
+ ```sql
+SELECT track, artist, liveness FROM spotify 
+WHERE liveness >(SELECT AVG(liveness) FROM spotify);
+
+ ```
+   
+3. Use a `WITH` clause to calculate the difference between the highest and lowest energy values for tracks in each album.
 ```sql
 WITH cte
 AS
@@ -150,9 +169,12 @@ FROM cte
 ORDER BY 2 DESC
 ```
    
-5. Find tracks where the energy-to-liveness ratio is greater than 1.2.
-6. Calculate the cumulative sum of likes for tracks ordered by the number of views, using window functions.
-
+4. Find tracks where the energy-to-liveness ratio is greater than 1.2.
+ ```sql
+ ```
+5. Calculate the cumulative sum of likes for tracks ordered by the number of views, using window functions.
+ ```sql
+ ```
 
 
 This optimization shows how indexing can drastically reduce query time, improving the overall performance of our database operations in the Spotify project.
